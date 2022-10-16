@@ -2,7 +2,7 @@
 import './App.css';
 
 // React
-import {useCallback, useState, useEffect} from 'react'
+import { useState, useEffect} from 'react'
 
 // data
 import{wordsList} from './data/wordsList'
@@ -19,9 +19,13 @@ const stages = [
   {id: 3, name: "end"},
 ];
 
+const guessesQtd = 3;
+
+
 function App() {
   const [gameStage, setGameStage] = useState(stages[0].name)
   const[words] = useState(wordsList)
+ 
   //console.log(words)
 
   //Palavra, Categoria, letra
@@ -33,8 +37,9 @@ function App() {
   //letras adivinhadas, letras erradas, tentativas, pontuação
   const [guessedLetters, setGuessedLetters] = useState([]);
   const [wrongLetters, setWrongLetters] = useState([]);
-  const [guesses, setGuesses] = useState(3);
+  const [guesses, setGuesses] = useState(guessesQtd);
   const [score, setScore] = useState(0);
+
   
     // buscando a categoria e palavra 
   const pickWordAndCategory = () => {
@@ -52,12 +57,12 @@ function App() {
 
     const {word, category} = pickWordAndCategory()
 
-    let wordLetters = word.split('')
+    let wordLetters = word.split("")
 
     wordLetters = wordLetters.map((l) => l.toLowerCase()) 
 
-    // console.log(wordLetters)
-    // console.log(category)
+     console.log(wordLetters)
+     console.log(category)
 
     setPickedWord(word);
     setPickedCategory(category);
@@ -67,12 +72,50 @@ function App() {
     setGameStage(stages[1].name)    
   }
   // função para retornar para ir ao game
-  const verifyLetter = () => {
-    setGameStage(stages[2].name)  
+  const verifyLetter = (letter) => {
+    const normalizedLetter = letter.toLowerCase();
+
+    //chegar se as letras ja foram utilizadas
+    if(guessedLetters.includes(normalizedLetter) || 
+      wrongLetters.includes(normalizedLetter) ){
+      return;
+    }
+
+    if(letters.includes(normalizedLetter)){
+      setGuessedLetters((actualGuessedLetters)=> [
+        ...actualGuessedLetters, 
+        normalizedLetter,   
+      ])
+    }else{
+      setGuessedLetters((actualWrongLetters)=> [
+        ...actualWrongLetters, 
+        normalizedLetter,   
+      ])
+    }
+    setGuesses((actualGuesses) => actualGuesses - 1)
+
+    console.log("tentativas: " + guesses);
+    console.log("Letra certa " + guessedLetters);
+    console.log("Letra errada " + wrongLetters);
   }
+
+  //Limpar a lista de letras para proximo jogo
+  const clearLetterStates = ()=>{
+    setGuessedLetters([])
+    setWrongLetters([])
+  }
+
+  useEffect(() => {
+    if(guesses <= 0){
+      clearLetterStates()
+      setGameStage(stages[2].name)
+    }
+  }, [guesses]);
    
   // função para retornar para o inicio
   const retry = () => {
+    setScore(0);
+    setGuesses(guessesQtd);
     setGameStage(stages[0].name)  
   }
 
@@ -88,7 +131,7 @@ function App() {
       wrongLetters = {wrongLetters}
       guesses = {guesses}
       score = {score}/>}
-      {gameStage === 'end' && <GameOver retry={retry} />}
+      {gameStage === 'end' && <GameOver retry={retry} score = {score} />}
     </div>
   );
 }
