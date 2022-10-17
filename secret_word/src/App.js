@@ -116,7 +116,7 @@ function App() {
   const retry = () => {
     setScore(0);
     setGuesses(guessesQtd);
-    setGameStage(stages[0].name);
+    setGameStage(stages[0].name)
   }
 
   return (
