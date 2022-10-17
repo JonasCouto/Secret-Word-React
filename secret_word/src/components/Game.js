@@ -65,5 +65,4 @@ function handleSubmit(event){
     </div>
   )
 }
-
 export default Game
